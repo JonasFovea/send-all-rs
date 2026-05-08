@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
 
 /// A single recipient row from the CSV. The email field is extracted separately.
 #[derive(Debug, Clone)]
