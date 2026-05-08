@@ -1,8 +1,8 @@
 mod config;
 mod job;
+mod logger;
 mod mailer;
 mod recipient;
-mod logger;
 
 use anyhow::Result;
 use clap::Parser;
@@ -21,6 +21,10 @@ struct Cli {
     /// Override the CSV column name used as the email address (default: E-Mail)
     #[arg(long, value_name = "COLUMN", default_value = "E-Mail")]
     email_column: String,
+
+    /// Perform a dry run without actually sending messages
+    #[arg(long, value_name = "DRYRUN", default_value = "false")]
+    dry_run: bool,
 }
 
 #[tokio::main]
@@ -41,13 +45,30 @@ async fn main() -> Result<()> {
     let job_cfg = job::JobConfig::load(&cli.job)?;
 
     // Print summary
-    print_summary(&base_cfg, &job_cfg, &base_cfg_path, &cli.job, &cli.email_column);
+    print_summary(
+        &base_cfg,
+        &job_cfg,
+        &base_cfg_path,
+        &cli.job,
+        &cli.email_column,
+    );
 
     // Prompt for password
-    let password = rpassword::prompt_password("SMTP password: ")?;
+    let pw_config = rpassword::ConfigBuilder::new()
+        .password_feedback_mask('🤫')
+        .build();
+    let password = rpassword::prompt_password_with_config("SMTP password: ",pw_config)?;
 
     // Run the mailer
-    let stats = mailer::run(&base_cfg, &job_cfg, &cli.job, &cli.email_column, password).await?;
+    let stats = mailer::run(
+        &base_cfg,
+        &job_cfg,
+        &cli.job,
+        &cli.email_column,
+        password,
+        cli.dry_run,
+    )
+    .await?;
 
     let now = chrono::Local::now();
     println!("\n========================================");

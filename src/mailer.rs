@@ -3,6 +3,7 @@ use crate::job::JobConfig;
 use crate::logger::MailLog;
 use crate::recipient::{self, Recipient};
 use anyhow::{Context, Result};
+use indicatif::{ProgressBar, ProgressStyle};
 use lettre::message::header::ContentType;
 use lettre::message::{Attachment, MultiPart, SinglePart};
 use lettre::transport::smtp::authentication::Credentials;
@@ -23,6 +24,7 @@ pub async fn run(
     job_path: &Path,
     email_col: &str,
     password: String,
+    dry_run: bool,
 ) -> Result<SendStats> {
     let log = MailLog::new(job_path);
 
@@ -72,25 +74,35 @@ pub async fn run(
     let timeout_count = base.timeout_count;
     let timeout_dur = base.parsed_timeout()?;
 
+    let progress = ProgressBar::new(recipients.len() as u64);
+    progress.set_style(
+        ProgressStyle::with_template(
+            "{spinner:.green} Sending [{elapsed_precise}] {bar:40.cyan/blue} {pos}/{len} ({percent}%) - sent: {msg}",
+        )
+        .context("Failed to build progress bar style")?
+        .progress_chars("█▉▊▌▍▎▏"),
+    );
+    progress.set_message("0, failed: 0");
+
     let mut sent = 0u64;
     let mut failed = 0u64;
 
     for (idx, r) in recipients.iter().enumerate() {
+        progress.set_message(format!("{sent} failed: {failed} next: {:30}", r.email));
         // Throttle
         if let (Some(n), Some(dur)) = (timeout_count, timeout_dur) {
             if idx > 0 && idx as u64 % n == 0 {
-                log::info!(
+                progress.println(format!(
                     "Sent {} mails, pausing for {}s...",
                     idx,
                     dur.as_secs()
-                );
+                ));
                 sleep(dur).await;
             }
         }
 
-        match send_one(&transport, base, job, r, &body_html, &body_txt, &attachments) {
+        match send_one(&transport, base, job, r, &body_html, &body_txt, &attachments, dry_run).await {
             Ok(()) => {
-                log::info!("Sent to {}", r.email);
                 log.write(&r.email, "OK", None).ok();
                 sent += 1;
             }
@@ -110,7 +122,7 @@ pub async fn run(
                         &attachments,
                         &log,
                     )
-                        .await
+                    .await
                     {
                         sent += 1;
                     } else {
@@ -121,7 +133,10 @@ pub async fn run(
                 }
             }
         }
+        progress.inc(1);
     }
+
+    progress.finish_with_message(format!("done - sent: {}, failed: {}", sent, failed));
 
     Ok(SendStats { sent, failed })
 }
@@ -150,7 +165,7 @@ async fn retry_send(
         );
         sleep(wait).await;
 
-        match send_one(transport, base, job, r, body_html, body_txt, attachments) {
+        match send_one(transport, base, job, r, body_html, body_txt, attachments, false).await {
             Ok(()) => {
                 log::info!("Retry {}: sent to {}", attempt, r.email);
                 log.write(&r.email, "OK (retry)", Some(&format!("attempt {}", attempt)))
@@ -174,7 +189,7 @@ async fn retry_send(
     false
 }
 
-fn send_one(
+async fn send_one(
     transport: &SmtpTransport,
     base: &BaseConfig,
     job: &JobConfig,
@@ -182,6 +197,7 @@ fn send_one(
     body_html: &str,
     body_txt: &str,
     attachments: &[PathBuf],
+    dry_run: bool,
 ) -> Result<()> {
     let html = if job.personalize {
         recipient::personalize(body_html, r)
@@ -243,6 +259,10 @@ fn send_one(
         .multipart(body)
         .context("Failed to build email message")?;
 
+    if dry_run {
+        sleep(Duration::from_millis(100)).await; // simulate sending
+        return Ok(()); // return early to skip sending
+    }
     transport
         .send(&email)
         .with_context(|| format!("SMTP error for {}", r.email))?;

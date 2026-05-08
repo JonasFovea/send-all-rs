@@ -1,6 +1,6 @@
 [package]
 name = "send-all-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "A CLI tool for sending batches of personalized emails"
 license = "MIT"
@@ -25,3 +25,4 @@ env_logger = "0.11"
 anyhow = "1"
 tokio = { version = "1", features = ["full"] }
 dirs = "5"
+indicatif = "0.18.4"
