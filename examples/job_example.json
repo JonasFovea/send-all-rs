@@ -1,0 +1,11 @@
+{
+  "subject": "Hello $FirstName$, your invoice is ready",
+  "recipient_list": "recipients.csv",
+  "body_html": "body.html",
+  "body_txt": "body.txt",
+  "personalize": true,
+  "attachments": [
+    "invoice.pdf"
+  ],
+  "blacklist": "blacklist.txt"
+}

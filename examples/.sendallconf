@@ -1,0 +1,13 @@
+# send-all-rs base configuration
+# Place this at ~/.sendallconf or pass --baseconfig <path>
+
+smtp_server      = "smtp.example.com"
+smtp_port        = 587
+account          = "you@example.com"
+
+# TLS mode: "starttls" | "tls" | "plain"
+tls_mode         = "starttls"
+
+# Throttling: pause after every N mails
+# timeout_count    = 50
+# timeout_duration = "5min"   # bare number = minutes; supports s, min, h, d

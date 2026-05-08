@@ -1,0 +1,27 @@
+[package]
+name = "send-all-rs"
+version = "0.1.0"
+edition = "2024"
+description = "A CLI tool for sending batches of personalized emails"
+license = "MIT"
+repository = "https://github.com/YOUR_USERNAME/send-all-rs"
+
+[[bin]]
+name = "send-all-rs"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+csv = "1"
+lettre = { version = "0.11", features = ["smtp-transport", "native-tls", "builder", "hostname"] }
+rpassword = "7"
+mime_guess = "2"
+chrono = { version = "0.4", features = ["serde"] }
+log = "0.4"
+env_logger = "0.11"
+anyhow = "1"
+tokio = { version = "1", features = ["full"] }
+dirs = "5"
