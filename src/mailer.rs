@@ -101,9 +101,21 @@ pub async fn run(
             }
         }
 
-        match send_one(&transport, base, job, r, &body_html, &body_txt, &attachments, dry_run).await {
+        match send_one(
+            &transport,
+            base,
+            job,
+            r,
+            &body_html,
+            &body_txt,
+            &attachments,
+            dry_run,
+        )
+        .await
+        {
             Ok(()) => {
-                log.write(&r.email, "OK", None).ok();
+                log.write(&r.email, "OK", if dry_run { Some("DRY RUN") } else { None })
+                    .ok();
                 sent += 1;
             }
             Err(e) => {
@@ -165,18 +177,37 @@ async fn retry_send(
         );
         sleep(wait).await;
 
-        match send_one(transport, base, job, r, body_html, body_txt, attachments, false).await {
+        match send_one(
+            transport,
+            base,
+            job,
+            r,
+            body_html,
+            body_txt,
+            attachments,
+            false,
+        )
+        .await
+        {
             Ok(()) => {
                 log::info!("Retry {}: sent to {}", attempt, r.email);
-                log.write(&r.email, "OK (retry)", Some(&format!("attempt {}", attempt)))
-                    .ok();
+                log.write(
+                    &r.email,
+                    "OK (retry)",
+                    Some(&format!("attempt {}", attempt)),
+                )
+                .ok();
                 return true;
             }
             Err(e) => {
                 let err_str = e.to_string();
                 log::warn!("Retry {} failed for {}: {}", attempt, r.email, err_str);
-                log.write(&r.email, &format!("RETRY {} FAILED", attempt), Some(&err_str))
-                    .ok();
+                log.write(
+                    &r.email,
+                    &format!("RETRY {} FAILED", attempt),
+                    Some(&err_str),
+                )
+                .ok();
                 if !is_retryable(&e) {
                     log::info!("Non-retryable error on retry, giving up on {}", r.email);
                     return false;
