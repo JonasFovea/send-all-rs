@@ -5,7 +5,7 @@ A fast, personalized bulk email sender written in Rust.
 ## Install
 
 ```bash
-cargo install --git https://github.com/YOUR_USERNAME/send-all-rs
+cargo install --git https://github.com/JonasFovea/send-all-rs
 ```
 
 ## Setup
@@ -13,13 +13,13 @@ cargo install --git https://github.com/YOUR_USERNAME/send-all-rs
 Create `~/.sendallconf`:
 
 ```toml
-smtp_server      = "smtp.example.com"
-smtp_port        = 587
-account          = "you@example.com"
-tls_mode         = "starttls"   # "starttls" | "tls" | "plain"
+smtp_server = "smtp.example.com"
+smtp_port = 587
+account = "you@example.com"
+tls_mode = "starttls"   # "starttls" | "tls" | "plain"
 
 # Optional throttling
-timeout_count    = 50           # pause after every N mails
+timeout_count = 50           # pause after every N mails
 timeout_duration = "5min"       # bare number = minutes; s, min, h, d supported
 ```
 
@@ -31,9 +31,9 @@ send-all-rs job_example.json
 
 Options:
 
-| Flag | Description |
-|------|-------------|
-| `--baseconfig <path>` | Override default `~/.sendallconf` |
+| Flag                   | Description                                        |
+|------------------------|----------------------------------------------------|
+| `--baseconfig <path>`  | Override default `~/.sendallconf`                  |
 | `--email-column <col>` | CSV column for email addresses (default: `E-Mail`) |
 
 ## Job file (JSON)
@@ -45,7 +45,9 @@ Options:
   "body_html": "body.html",
   "body_txt": "body.txt",
   "personalize": true,
-  "attachments": ["invoice.pdf"],
+  "attachments": [
+    "invoice.pdf"
+  ],
   "blacklist": "blacklist.txt"
 }
 ```
@@ -61,7 +63,8 @@ alice@example.com,Alice,Smith
 
 ## Personalization
 
-If `"personalize": true`, placeholders like `$FirstName$` in the subject, HTML body, and text body are replaced with the matching CSV column value. Missing columns produce a warning but do not stop the run.
+If `"personalize": true`, placeholders like `$FirstName$` in the subject, HTML body, and text body are replaced with the
+matching CSV column value. Missing columns produce a warning but do not stop the run.
 
 ## Blacklist
 
@@ -79,6 +82,7 @@ A `.log` file is written alongside the job JSON, e.g. `job_example.log`:
 
 ## Throttling
 
-Set `timeout_count` and `timeout_duration` in the base config to pause after every N emails. This helps avoid SMTP rate limits.
+Set `timeout_count` and `timeout_duration` in the base config to pause after every N emails. This helps avoid SMTP rate
+limits.
 
 Duration formats: `30s`, `5min`, `2h`, `1d` — bare numbers are treated as minutes.

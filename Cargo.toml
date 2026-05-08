@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 description = "A CLI tool for sending batches of personalized emails"
 license = "MIT"
-repository = "https://github.com/YOUR_USERNAME/send-all-rs"
+repository = "https://github.com/JonasFovea/send-all-rs"
 
 [[bin]]
 name = "send-all-rs"
