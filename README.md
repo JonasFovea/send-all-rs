@@ -29,12 +29,18 @@ timeout_duration = "5min"       # bare number = minutes; s, min, h, d supported
 send-all-rs job_example.json
 ```
 
-Options:
+```
+Usage: send-all-rs [OPTIONS] <JOB>
 
-| Flag                   | Description                                        |
-|------------------------|----------------------------------------------------|
-| `--baseconfig <path>`  | Override default `~/.sendallconf`                  |
-| `--email-column <col>` | CSV column for email addresses (default: `E-Mail`) |
+Arguments:
+  <JOB>  Path to the job JSON file
+
+Options:
+      --baseconfig <PATH>      Override the default base config path (~/.sendallconf)
+      --email-column <COLUMN>  Override the CSV column name used as the email address (default: E-Mail) [default: E-Mail]
+      --dry-run                Perform a dry run without actually sending messages
+  -h, --help                   Print help
+```
 
 ## Job file (JSON)
 
