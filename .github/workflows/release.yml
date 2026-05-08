@@ -34,11 +34,6 @@ jobs:
             archive: zip
             binary: send-all-rs.exe
 
-          # Windows ARM64
-          - os: ubuntu-latest
-            target: aarch64-pc-windows-gnullvm
-            archive: zip
-            binary: send-all-rs.exe
 
     runs-on: ${{ matrix.os }}
 
