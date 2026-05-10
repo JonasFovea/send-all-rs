@@ -3,10 +3,16 @@
 A fast, personalized bulk email sender written in Rust.
 
 ## Install
-
+### Using cargo
+To install using the rust toolchain:
 ```bash
 cargo install --git https://github.com/JonasFovea/send-all-rs
 ```
+### Prebuilt binaries
+Prebuilt binaries are available for Linux (x86_64, Aarch64) and Windows (x86_64) in the [releases](https://github.com/JonasFovea/send-all-rs/releases) section.
+To use the prebuilt binaries, download the archive for your platform and extract it.
+Ideally, you would add the extracted directory to your `PATH`.
+Otherwise, the full path to the binary must be used.
 
 ## Setup
 
