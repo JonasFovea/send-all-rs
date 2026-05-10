@@ -11,6 +11,7 @@ use lettre::transport::smtp::client::{Tls, TlsParameters};
 use lettre::{Message, SmtpTransport, Transport};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
+use chrono::Local;
 use tokio::time::sleep;
 
 pub struct SendStats {
@@ -92,10 +93,13 @@ pub async fn run(
         // Throttle
         if let (Some(n), Some(dur)) = (timeout_count, timeout_dur) {
             if idx > 0 && idx as u64 % n == 0 {
+                let now = Local::now();
+                let until = now + dur;
                 progress.println(format!(
-                    "Sent {} mails, pausing for {}s...",
+                    "Sent {} mails, pausing {}s until {}...",
                     idx,
-                    dur.as_secs()
+                    dur.as_secs(),
+                    until.format("%Y-%m-%d %H:%M:%S%z (%Z)")
                 ));
                 sleep(dur).await;
             }
