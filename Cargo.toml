@@ -1,6 +1,6 @@
 [package]
 name = "send-all-rs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "A CLI tool for sending batches of personalized emails"
 license = "MIT"
